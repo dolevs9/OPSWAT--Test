@@ -1,0 +1,66 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ninja", "Ninja\Ninja.csproj", "{595CEBE1-09C4-4B36-86D7-B780842B13B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Engine", "Engine\Engine.csproj", "{88DEAC9A-A852-4004-9278-3B7B5229898C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{74DDEF85-BA1D-43C0-AC4D-DDE1B7B9B62F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Input", "Input", "{8E81C947-44E8-457D-8927-42DA4C04861E}"
+	ProjectSection(SolutionItems) = preProject
+		Input\input-all.list = Input\input-all.list
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "maps", "maps", "{4226032A-A9D9-4EA5-B8C0-2A82DAE364EB}"
+	ProjectSection(SolutionItems) = preProject
+		Input\maps\01_in = Input\maps\01_in
+		Input\maps\02_in = Input\maps\02_in
+		Input\maps\03_in = Input\maps\03_in
+		Input\maps\04_in = Input\maps\04_in
+		Input\maps\05_in = Input\maps\05_in
+		Input\maps\06_in = Input\maps\06_in
+		Input\maps\07_in = Input\maps\07_in
+		Input\maps\08_in = Input\maps\08_in
+		Input\maps\09_in = Input\maps\09_in
+		Input\maps\10_in = Input\maps\10_in
+		Input\maps\11_in = Input\maps\11_in
+		Input\maps\12_in = Input\maps\12_in
+		Input\maps\13_in = Input\maps\13_in
+		Input\maps\14_in = Input\maps\14_in
+		Input\maps\15_in = Input\maps\15_in
+		Input\maps\16_in = Input\maps\16_in
+		Input\maps\17_in = Input\maps\17_in
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{595CEBE1-09C4-4B36-86D7-B780842B13B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{595CEBE1-09C4-4B36-86D7-B780842B13B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{595CEBE1-09C4-4B36-86D7-B780842B13B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{595CEBE1-09C4-4B36-86D7-B780842B13B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88DEAC9A-A852-4004-9278-3B7B5229898C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88DEAC9A-A852-4004-9278-3B7B5229898C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88DEAC9A-A852-4004-9278-3B7B5229898C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88DEAC9A-A852-4004-9278-3B7B5229898C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74DDEF85-BA1D-43C0-AC4D-DDE1B7B9B62F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74DDEF85-BA1D-43C0-AC4D-DDE1B7B9B62F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74DDEF85-BA1D-43C0-AC4D-DDE1B7B9B62F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74DDEF85-BA1D-43C0-AC4D-DDE1B7B9B62F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4226032A-A9D9-4EA5-B8C0-2A82DAE364EB} = {8E81C947-44E8-457D-8927-42DA4C04861E}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {77A13039-0C83-4F3B-A7A3-801C94C03D01}
+	EndGlobalSection
+EndGlobal
