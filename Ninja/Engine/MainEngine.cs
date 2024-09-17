@@ -39,7 +39,7 @@ namespace Engine
         {
             bomb.IsAlive = false;
 
-            File.AppendAllText("Log.txt", $"Bomb at x:{bomb.X} y:{bomb.Y} exploded");
+            File.AppendAllText($"Log.{brd.Name}.txt", $"Bomb at x:{bomb.X} y:{bomb.Y} exploded");
 
             List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(bomb);
 
@@ -98,7 +98,7 @@ namespace Engine
             {
                 string fightningNinjasString = string.Empty;
                 fightingNinjaGroup.Select(ninja => fightningNinjasString += $"{ninja.Name}, ");
-                File.AppendAllText("Log.txt", $"Battle between {fightningNinjasString} at x:{fightingNinjaGroup.First().X} y:{fightingNinjaGroup.First().Y}");
+                File.AppendAllText($"Log.{brd.Name}.txt", $"Battle between {fightningNinjasString} at x:{fightingNinjaGroup.First().X} y:{fightingNinjaGroup.First().Y}");
 
                 int ninjaCount = fightingNinjaGroup.Count();
                 bool groupHasBreakerMode = fightingNinjaGroup.Where(ninja => ninja.BreakerMode == true).Count() > 0;
@@ -134,7 +134,6 @@ namespace Engine
         {
             this.brd = brd;
             bool finished = false;
-            File.Delete("Log.txt");
             ExtractDynamicItems();
 
             while(!finished)
@@ -148,12 +147,15 @@ namespace Engine
                         if(ninja.IsAlive)
                         {
                             ActionSelector action = new ActionSelector(ninja, brd, countdownBombs, runningNinjas);
-                            action.SelectAction();
+                            bool actionWasDone = action.SelectAction();
                             if(action.WasWinningStep)
                             {
-                                File.AppendAllText("Log.txt", $"Ninja {ninja.Name} Won the Game !{Environment.NewLine}");
+                                File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} Won the Game !{Environment.NewLine}");
                                 return ninja;
                             }
+
+                            if(!actionWasDone)
+                                finished = true;
                         }
                     }
                 }

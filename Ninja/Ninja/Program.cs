@@ -5,8 +5,14 @@ class TestClass
 {
     static void Main(string[] args)
     {
-        Board brd = Board.BoardLoader(@"C:\projects\OPSWAT-Test\Ninja\Input\maps\10_in");
-        MainEngine engine = new MainEngine();
-        engine.Run(brd);
+        string[] logFiles = File.ReadAllLines(@"Input\input-all.list");
+
+        foreach(string logFileName in logFiles)
+        {
+            Board brd = Board.BoardLoader($@"Input\{logFileName}");
+            File.Delete($"Log.{brd.Name}.txt");
+            MainEngine engine = new MainEngine();
+            engine.Run(brd);
+        }
     }
 }
