@@ -21,9 +21,15 @@ namespace Models
             }
         }
 
+        public int GetLength(int dimension)
+        {
+            return board.GetLength(dimension);
+        }
+
         public Board(char[,] content)
         {
             board = content;
+            
         }
 
 
