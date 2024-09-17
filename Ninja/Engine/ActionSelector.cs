@@ -96,7 +96,7 @@ namespace Engine
                         }
                 ),
                 (       "MirrorMode",
-                        () => brd[ninja.X, ninja.Y] == 'B',
+                        () => brd[ninja.X, ninja.Y] == 'M',
                         () =>
                         {
                             ninja.IsMirrored = !ninja.IsMirrored;
