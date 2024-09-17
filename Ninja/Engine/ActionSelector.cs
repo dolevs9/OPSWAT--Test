@@ -91,7 +91,15 @@ namespace Engine
                         () => brd[ninja.X, ninja.Y] == 'B',
                         () =>
                         {
-                            ninja.BreakerMode = true;
+                            ninja.BreakerMode = !ninja.BreakerMode;
+                            DefaultMoveAction(ninja,brd);
+                        }
+                ),
+                (       "MirrorMode",
+                        () => brd[ninja.X, ninja.Y] == 'B',
+                        () =>
+                        {
+                            ninja.IsMirrored = !ninja.IsMirrored;
                             DefaultMoveAction(ninja,brd);
                         }
                 ),
