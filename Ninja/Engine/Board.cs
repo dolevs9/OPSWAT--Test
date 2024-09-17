@@ -50,7 +50,11 @@ namespace Models
         {
             //String is immuetable, so i prefer using array of chars, and not list of lines.
             string fileContent = File.ReadAllText(filePath);
-            string[] lines = fileContent.Split("\r\n");
+            string[] lines = fileContent.Split("\n");
+
+            //Remove last line if it contains only new line or space
+            if(string.IsNullOrWhiteSpace(lines.Last()))
+                lines = lines.Take(lines.Length-1).ToArray();
 
             //We know the array size, it takes less storange then using string line list.
             char[,] board = new char[lines[0].Length, lines.Length];

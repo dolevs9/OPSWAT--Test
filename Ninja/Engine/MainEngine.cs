@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Engine
 {
-    internal class MainEngine
+    public class MainEngine
     {
         IEnumerable<Ninja> runningNinjas;
         IEnumerable<Bomb> countdownBombs;
@@ -24,7 +24,7 @@ namespace Engine
             List<CellDynamicItem> cellItems = new List<CellDynamicItem>(10);
             brd.ScanItems((x, y, cell) =>
             {
-                CellDynamicItem cellItem = creator.CreateItem(cell);
+                CellDynamicItem cellItem = creator.CreateItem(x, y, cell);
                 if(cellItem != null)
                     cellItems.Add(cellItem);
             });
@@ -134,6 +134,7 @@ namespace Engine
         {
             this.brd = brd;
             bool finished = false;
+            File.Delete("Log.txt");
             ExtractDynamicItems();
 
             while(!finished)
