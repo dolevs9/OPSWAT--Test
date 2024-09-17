@@ -16,7 +16,7 @@ namespace Models
             get {
                 return board[x, y];
             }
-            private set {
+            set {
                 board[x, y] = value;
             }
         }

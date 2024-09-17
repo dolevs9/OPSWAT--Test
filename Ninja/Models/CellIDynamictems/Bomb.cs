@@ -9,10 +9,12 @@ namespace Models.CellIDynamictems
     public class Bomb : CellDynamicItem
     {
         public int TurnsToBomb { get; set; }
+        public bool IsActive { get; set; }
 
         public Bomb(int turnsToBomb)
         {
             TurnsToBomb = turnsToBomb;
+            IsActive = false;
         }
     }
 }
