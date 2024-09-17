@@ -1,115 +1,129 @@
 ﻿using Models;
-using Models.CellIDynamictems;
+using Models.CellDynamicItems;
 
 namespace Engine
 {
     public class ActionSelector
     {
+        public bool WasWinningStep { get; private set; } = false;
+
         Ninja ninja;
         Board brd;
         IEnumerable<Ninja> allNinjas;
         IEnumerable<Bomb> bombs;
         bool shouldContinue;
+        bool ignoreLogDirection = false;
 
-        Dictionary<Func<bool>, Action> CellActionList;
+        List<(string name, Func<bool> condition, Action action)> CellActionList;
 
-        private Dictionary<Func<bool>, Action> LoadActionList()
+        private List<(string name, Func<bool> condition, Action action)> LoadActionList()
         {
 
 
-            return new Dictionary<Func<bool>, Action>()
-            {
-                {       //Activate Bombs
-                        () =>   char.IsDigit(brd[ninja.X, ninja.Y-1]) ||
-                                char.IsDigit(brd[ninja.X+1, ninja.Y]) ||
-                                char.IsDigit(brd[ninja.X, ninja.Y+1]) ||
-                                char.IsDigit(brd[ninja.X-1, ninja.Y]),
-                        () => {
+            return new List<(string name, Func<bool> condition, Action action)>()
+            {(
+                      "ActivateBombs",
+                      () =>   char.IsDigit(brd[ninja.X, ninja.Y-1]) ||
+                                            char.IsDigit(brd[ninja.X+1, ninja.Y]) ||
+                                            char.IsDigit(brd[ninja.X, ninja.Y+1]) ||
+                                            char.IsDigit(brd[ninja.X-1, ninja.Y]),
+                      () => {
                             bombs.Where(bomb =>  bomb.X == ninja.X-1 && bomb.Y == ninja.Y ||
                                                  bomb.X == ninja.X-1 && bomb.Y == ninja.Y ||
                                                  bomb.X == ninja.X && bomb.Y == ninja.Y-1 ||
                                                  bomb.X == ninja.X && bomb.Y == ninja.Y+1)
                                  .Select(bomb => bomb.IsActive = true);
                             shouldContinue = true;
+                            ignoreLogDirection = true;
                         }
+                ),
 
-                },
-
-                {       () => brd[ninja.X, ninja.Y] == '@',
+                (      "Start",
+                        () => brd[ninja.X, ninja.Y] == '@',
                         () => DefaultMoveAction(ninja,brd)
-                },
-                {       //Fight
+                ),
+                (       "Fight",
                         //Check if there are 2 ninjas in same position that matches our current ninja position, since our current ninja is also in the list
                         () => allNinjas.Where(otherNinja => otherNinja.X == ninja.X && otherNinja.Y == ninja.Y).Count() > 1,
                         () => Fight()
-                },
-                {       //Throw Shurikans
+                ),
+                (       "ThrowShurikans",
                         () => CanThrowShurikan(ninja, brd),
                         () => ThrowShurikan(ninja,brd)
-                },
-                {       () => brd[ninja.X, ninja.Y] == ' ',
+                ),
+                (       "Empty",
+                        () => brd[ninja.X, ninja.Y] == ' ',
                         () => DefaultMoveAction(ninja,brd)
-                },
-                {       () => brd[ninja.X, ninja.Y] == 'S',
+                ),
+                (       "South",
+                        () => brd[ninja.X, ninja.Y] == 'S',
                         () => ninja.Direction = Direction.South
-                },
-                {       () => brd[ninja.X, ninja.Y] == 'E',
+                ),
+                (       "East",
+                        () => brd[ninja.X, ninja.Y] == 'E',
                         () => ninja.Direction = Direction.East
-                },
-                {       () => brd[ninja.X, ninja.Y] == 'N',
+                ),
+                (       "North",
+                        () => brd[ninja.X, ninja.Y] == 'N',
                         () => ninja.Direction = Direction.North
-                },
-                {       () => brd[ninja.X, ninja.Y] == 'W',
+                ),
+                (       "West",
+                        () => brd[ninja.X, ninja.Y] == 'W',
                         () => ninja.Direction = Direction.West
-                },
-                {       () => brd[ninja.X, ninja.Y] == '*',
+                ),
+                (       "CollectShurikan",
+                        () => brd[ninja.X, ninja.Y] == '*',
                         () =>
                         {
                             ninja.Shurikens++;
+                            brd[ninja.X, ninja.Y] = ' ';
                             DefaultMoveAction(ninja,brd);
                         }
-                },
-                {       () => brd[ninja.X, ninja.Y] == 'B',
+                ),
+                (       "BreakerMode",
+                        () => brd[ninja.X, ninja.Y] == 'B',
                         () =>
                         {
                             ninja.BreakerMode = true;
                             DefaultMoveAction(ninja,brd);
                         }
-                },
-                {       () => brd[ninja.X, ninja.Y] == 'X',
+                ),
+                (       "BreakableObstacle",
+                        () => brd[ninja.X, ninja.Y] == 'X',
                         () =>
                         {
                             if(ninja.BreakerMode)
                                 brd[ninja.X, ninja.Y] = ' ';
                             DefaultMoveAction(ninja,brd);
                         }
-                },
+                ),
     
                 //Portal Items
-                {       () =>
-                    {
-                        char[] portalLetters = {'F', 'G', 'H', 'I', 'J', 'K', 'L' };
-                        return portalLetters.Where(portalLetter => portalLetter == brd[ninja.X,ninja.Y]).Count() > 0;
-                    } ,
+                (       "Portalling",
                         () =>
-                    {
-                        //In each cell on the board
-                        brd.ScanItems((x, y, cell) =>
                         {
-                            //Check if its a different position for the same letter that the ninja is on
-                            if(x != ninja.X && y != ninja.Y && cell == brd[ninja.X,ninja.Y])
+                            char[] portalLetters = {'F', 'G', 'H', 'I', 'J', 'K', 'L' };
+                            return portalLetters.Where(portalLetter => portalLetter == brd[ninja.X,ninja.Y]).Count() > 0;
+                        } ,
+                        () =>
+                        {
+                            //In each cell on the board
+                            brd.ScanItems((x, y, cell) =>
                             {
-                                ninja.X = x;
-                                ninja.Y = y;
-                            }
-                        });
+                                //Check if its a different position for the same letter that the ninja is on
+                                if(x != ninja.X && y != ninja.Y && cell == brd[ninja.X,ninja.Y])
+                                {
+                                    ninja.X = x;
+                                    ninja.Y = y;
+                                }
+                            });
     
-                        //And after placing the the ninja move as usual
-                        DefaultMoveAction(ninja,brd);
-                    }
-                }
-    
-    
+                            //And after placing the the ninja move as usual
+                            DefaultMoveAction(ninja,brd);
+                        }
+                )
+
+
             };
         }
 
@@ -122,20 +136,35 @@ namespace Engine
             bombs = bmb;
             allNinjas = ninjas;
             CellActionList = LoadActionList();
+
         }
 
 
         public void SelectAction()
         {
+            int actionNumber = 0;
             shouldContinue = false;
             foreach(var cellActionOption in CellActionList)
             {
-                if(cellActionOption.Key())
-                    cellActionOption.Value();
+                ignoreLogDirection = false;
+                if(cellActionOption.condition())
+                {
+                    cellActionOption.action();
+                    LogLine(cellActionOption);
+                }
 
                 if(!shouldContinue)
                     break;
+
+                actionNumber++;
             }
+        }
+
+        private void LogLine((string name, Func<bool> condition, Action action) cellActionOption)
+        {
+            string logLineString = ignoreLogDirection ? $"{cellActionOption.name}" : $"{ninja.Direction}({cellActionOption.name})";
+            logLineString = $"{logLineString}{Environment.NewLine}";
+            File.AppendAllText("Log.txt", logLineString);
         }
 
 
@@ -166,15 +195,75 @@ namespace Engine
             }
         }
 
+        
+
+
+
 
         private bool CanThrowShurikan(Ninja ninja, Board brd)
         {
+            List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
+
+            for(int i = 0; i < calculateRangeLocation.Count; i++)
+            {
+                int range = 1;
+                (int X, int Y) curLoc = calculateRangeLocation[i](range);
+                while(brd[curLoc.X, curLoc.Y] != '#')
+                {
+                    if(brd[curLoc.X, curLoc.Y] == 'X' || brd[curLoc.X, curLoc.Y] == '$')
+                        return true;
+
+                    range++;
+                    curLoc = calculateRangeLocation[i](range);
+                }
+            }
+
             return false;
         }
 
+
+
+
+
         private void ThrowShurikan(Ninja ninja, Board brd)
         {
+            ignoreLogDirection = true;
 
+            List<Func<int, (int X, int Y)>>  calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
+
+            for(int i = 0; i < calculateRangeLocation.Count; i++)
+            {
+                int range = 1;
+                (int X, int Y) curLoc = calculateRangeLocation[i](range);
+                while(brd[curLoc.X, curLoc.Y] != '#')
+                {
+                    if(brd[curLoc.X, curLoc.Y] == '$')
+                    {
+                        WasWinningStep = true;
+                        return;
+                    }
+
+                    range++;
+                    curLoc = calculateRangeLocation[i](range);
+                }
+            }
+
+            for(int i = 0; i < calculateRangeLocation.Count; i++)
+            {
+                int range = 1;
+                (int X, int Y) curLoc = calculateRangeLocation[i](range);
+                while(brd[curLoc.X, curLoc.Y] != '#')
+                {
+                    if(brd[curLoc.X, curLoc.Y] == 'X')
+                    {
+                        brd[curLoc.X, curLoc.Y] = ' ';
+                        return;
+                    }
+
+                    range++;
+                    curLoc = calculateRangeLocation[i](range);
+                }
+            }
         }
 
         private void Fight()

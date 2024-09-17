@@ -1,13 +1,15 @@
 ﻿using System.Linq;
 
-namespace Models.CellIDynamictems
+namespace Models.CellDynamicItems
 {
     public class Ninja : CellDynamicItem
     {
+        public string Name { get; set; }
         public int Shurikens { get; set; } = 3;
         public Direction Direction { get; set; } = Direction.South;
         public bool BreakerMode { get; set; } = false;
         public bool IsMirrored { get; set; } = false;
+        public bool IsAlive { get; set; } = true;
 
         //Save default order
         public Dictionary<Direction, Location> DefaultMoveOrder

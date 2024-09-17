@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Models.CellDynamicItems;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -60,6 +61,17 @@ namespace Models
 
             Board b = new Board(board);
             return b;
+        }
+
+        static internal List<Func<int, (int X, int Y)>> RetrieveRangeLocationCalculation(CellDynamicItem cellItem)
+        {
+            return new List<Func<int, (int X, int Y)>>()
+            {
+                (int range)=> (cellItem.X, cellItem.Y + range),
+                (int range)=> (cellItem.X+range, cellItem.Y),
+                (int range)=> (cellItem.X, cellItem.Y - range),
+                (int range)=> (cellItem.X-range, cellItem.Y)
+            };
         }
     }
 }

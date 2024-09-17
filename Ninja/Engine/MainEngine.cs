@@ -1,5 +1,5 @@
 ﻿using Models;
-using Models.CellIDynamictems;
+using Models.CellDynamicItems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,18 +33,41 @@ namespace Engine
         }
 
 
+
+        private void ExplodeBomb(Bomb bomb, Board brd)
+        {
+            bomb.IsAlive = false;
+
+            List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(bomb);
+
+            for(int i = 0; i < calculateRangeLocation.Count; i++)
+            {
+                int range = 0;
+                (int X, int Y) curLoc = calculateRangeLocation[i](range);
+                while(brd[curLoc.X, curLoc.Y] != '#' && range <= 2)
+                {
+                    if(brd[curLoc.X, curLoc.Y] == '0' || brd[curLoc.X, curLoc.Y] == 'X' || brd[curLoc.X, curLoc.Y] == '*')
+                        brd[curLoc.X, curLoc.Y] = ' ';
+
+                    //TODO: Validation
+                    runningNinjas.Where(ninja => ninja.X == curLoc.X && ninja.Y == curLoc.Y)
+                        .Select(ninja => ninja.IsAlive = false);
+
+                    range++;
+                    curLoc = calculateRangeLocation[i](range);
+                }
+            }
+        }
+
+
         private void RunCountdownBombs()
         {
             foreach(Bomb bomb in countdownBombs)
             {
-                if(bomb.IsActive)
-                    if(bomb.TurnsToBomb <= 1)
+                if(bomb.IsActive && bomb.IsAlive)
+                    if(bomb.TurnsToBomb == 0)
                     {
-                        //TODO: CLEAR from y-2 to y+2 and from x-2 to x+2 if not # found 
-
-                        brd[bomb.X, bomb.Y] = Convert.ToChar(bomb.TurnsToBomb);
-
-                        //TODO: CLEAR ninjas in that area 
+                        ExplodeBomb(bomb,brd);
                     }
                     else
                     {
@@ -54,13 +77,13 @@ namespace Engine
             }
         }
 
-        private void ThrowShurikans(Ninja n)
+        private void Fight()
         {
 
         }
 
 
-        public void Run(Board brd)
+        public Ninja Run(Board brd)
         {
             this.brd = brd;
             bool finished = false;
@@ -68,11 +91,24 @@ namespace Engine
 
             while(!finished)
             {
-                foreach(var ninja in runningNinjas)
+                RunCountdownBombs();
+                foreach(Ninja ninja in runningNinjas)
                 {
-                    ThrowShurikans(ninja);
+                    if(ninja.IsAlive)
+                    {
+                        ActionSelector action = new ActionSelector(ninja, brd, countdownBombs, runningNinjas);
+                        action.SelectAction();
+                        if(action.WasWinningStep)
+                        {
+                            File.AppendAllText("Log.txt", $"Ninja {ninja.Name} Won the Game !{Environment.NewLine}");
+                            return ninja;
+                        }
+                    }
                 }
+                Fight();
             }
+
+            return null;
         }
     }
 }
