@@ -142,7 +142,7 @@ namespace Engine
             };
         }
 
-        public void SelectAction()
+        public bool SelectAction()
         {
             int actionNumber = 0;
             shouldContinue = false;
@@ -169,19 +169,27 @@ namespace Engine
                 }
 
                 if(actionDone)
-                    break;
+                    return true;
 
                 shouldContinue = false;
 
                 actionNumber++;
             }
+
+            if(!actionDone)
+            {
+                File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja:{ninja.Name}, got Stuck !{Environment.NewLine}");
+                return false;
+            }
+
+            return true;
         }
 
         private void LogLine((string name, Func<bool> condition, Action action) cellActionOption)
         {
             string logLineString = ignoreLogDirection ? $"{cellActionOption.name}" : $"{ninja.Direction}({cellActionOption.name})";
             logLineString = $"Ninja:{ninja.Name}, {logLineString}{Environment.NewLine}";
-            File.AppendAllText("Log.txt", logLineString);
+            File.AppendAllText($"Log.{brd.Name}.txt", logLineString);
         }
 
         private void DefaultMoveAction(Ninja ninja, Board brd)
