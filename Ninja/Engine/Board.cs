@@ -33,6 +33,18 @@ namespace Models
         }
 
 
+        internal void ScanItems(Action<int, int, char> actionToDoPerCell)
+        {
+            for(int x = 0; x < board.GetLength(0); x++)
+            {
+                for(int y = 0; y < board.GetLength(1); y++)
+                {
+                    char cellItem = board[x, y];
+                    actionToDoPerCell(x, y, cellItem);
+                }
+            }
+        }
+
         public static Board BoardLoader(string filePath)
         {
             //String is immuetable, so i prefer using array of chars, and not list of lines.
