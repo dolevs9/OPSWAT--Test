@@ -14,24 +14,14 @@ namespace Engine
         IEnumerable<Bomb> countdownBombs;
         Board brd;
 
-        private void ScanItems(Action<int, int, char> actionToDoPerCell)
-        {
-            for(int x = 0; x < brd.GetLength(0); x++)
-            {
-                for(int y = 0; y < brd.GetLength(1); y++)
-                {
-                    char cellItem = brd[x, y];
-                    actionToDoPerCell(x, y, cellItem);
-                }
-            }
-        }
+        
 
         private void ExtractDynamicItems()
         {
             ItemCreator creator = new ItemCreator();
 
             List<CellDynamicItem> cellItems = new List<CellDynamicItem>(10);
-            ScanItems((x, y, cell) =>
+            brd.ScanItems((x, y, cell) =>
             {
                 CellDynamicItem cellItem = creator.CreateItem(cell);
                 if(cellItem != null)
@@ -64,6 +54,11 @@ namespace Engine
             }
         }
 
+        private void ThrowShurikans(Ninja n)
+        {
+
+        }
+
 
         public void Run(Board brd)
         {
@@ -75,6 +70,7 @@ namespace Engine
             {
                 foreach(var ninja in runningNinjas)
                 {
+                    ThrowShurikans(ninja);
                 }
             }
         }
