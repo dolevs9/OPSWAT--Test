@@ -76,6 +76,14 @@ namespace Engine
                             DefaultMoveAction(ninja,brd);
                         }
                 },
+                {       () => brd[ninja.X, ninja.Y] == 'X',
+                        () =>
+                        {
+                            if(ninja.BreakerMode)
+                                brd[ninja.X, ninja.Y] = ' ';
+                            DefaultMoveAction(ninja,brd);
+                        }
+                },
     
                 //Portal Items
                 {       () =>
