@@ -12,7 +12,7 @@ namespace Models.CellDynamicItems
         public bool IsAlive { get; set; } = true;
 
         //Save default order
-        public List<(Direction dircection, int X,int Y)> DefaultMoveOrder
+        public List<(Direction direction, int X,int Y)> DefaultMoveOrder
         {
             get {
                 return new List<(Direction dircection, int X, int Y)>(4)
@@ -28,13 +28,13 @@ namespace Models.CellDynamicItems
         public List<(Direction dircection, int X, int Y)> CurrentMoveOrder
         {
             get {
-                List<(Direction dircection, int X, int Y)> moveOrder = new List<(Direction dircection, int X, int Y)>(4);
+                List<(Direction direction, int X, int Y)> moveOrder = new List<(Direction direction, int X, int Y)>(4);
                 moveOrder.AddRange(DefaultMoveOrder);
 
                 if(IsMirrored)
                     moveOrder.Reverse();
 
-                (Direction dircection, int X, int Y) currentDirection = DefaultMoveOrder.First(moveOption => moveOption.dircection == Direction);
+                (Direction direction, int X, int Y) currentDirection = DefaultMoveOrder.First(moveOption => moveOption.direction == Direction);
                 moveOrder.Remove(currentDirection);
                 moveOrder.Insert(0,(Direction, currentDirection.X, currentDirection.Y));
 

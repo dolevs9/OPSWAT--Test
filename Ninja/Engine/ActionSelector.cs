@@ -13,6 +13,7 @@ namespace Engine
         IEnumerable<Bomb> bombs;
         bool shouldContinue;
         bool ignoreLogDirection = false;
+        bool stepAction = true;
 
         List<(string name, Func<bool> condition, Action action)> CellActionList;
 
@@ -25,7 +26,6 @@ namespace Engine
             CellActionList = LoadActionList();
 
         }
-
 
         private List<(string name, Func<bool> condition, Action action)> LoadActionList()
         {
@@ -46,6 +46,7 @@ namespace Engine
                                  .Select(bomb => bomb.IsActive = true);
                             shouldContinue = true;
                             ignoreLogDirection = true;
+                            stepAction = false;
                         }
                 ),
 
@@ -137,17 +138,32 @@ namespace Engine
         {
             int actionNumber = 0;
             shouldContinue = false;
+            bool actionDone = false;
             foreach(var cellActionOption in CellActionList)
             {
+                stepAction = true;
                 ignoreLogDirection = false;
                 if(cellActionOption.condition())
                 {
                     cellActionOption.action();
+
+                    //Move the ninja if required
+                    if(stepAction)
+                    {
+                        var direction = ninja.CurrentMoveOrder[0];
+                        ninja.X = direction.X;
+                        ninja.Y = direction.Y;
+                    }
+
                     LogLine(cellActionOption);
+                    if(!shouldContinue)
+                        actionDone = true;
                 }
 
-                if(!shouldContinue)
+                if(actionDone)
                     break;
+
+                shouldContinue = false;
 
                 actionNumber++;
             }
@@ -160,13 +176,15 @@ namespace Engine
             File.AppendAllText("Log.txt", logLineString);
         }
 
-
         private void DefaultMoveAction(Ninja ninja, Board brd)
         {
             List<char> blockers = new List<char>(2) { '#' };
 
             if(!ninja.BreakerMode)
+            {
                 blockers.Add('X');
+                blockers.Add('$');
+            }
 
             //Check what nearest cell is open to move to it
             foreach(var orderChecker in ninja.CurrentMoveOrder)
@@ -188,13 +206,11 @@ namespace Engine
             }
         }
 
-        
-
-
-
-
         private bool CanThrowShuriken(Ninja ninja, Board brd)
         {
+            if(ninja.Shurikens == 0)
+                return false;
+            
             List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
 
             for(int i = 0; i < calculateRangeLocation.Count; i++)
@@ -214,12 +230,9 @@ namespace Engine
             return false;
         }
 
-
-
-
-
         private void ThrowShuriken(Ninja ninja, Board brd)
         {
+            stepAction = false;
             ignoreLogDirection = true;
 
             List<Func<int, (int X, int Y)>>  calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
@@ -230,7 +243,7 @@ namespace Engine
                 (int X, int Y) curLoc = calculateRangeLocation[i](range);
                 while(brd[curLoc.X, curLoc.Y] != '#')
                 {
-                    if(brd[curLoc.X, curLoc.Y] == '$')
+                    if(ninja.Shurikens > 0 && brd[curLoc.X, curLoc.Y] == '$')
                     {
                         WasWinningStep = true;
                         return;
@@ -247,8 +260,9 @@ namespace Engine
                 (int X, int Y) curLoc = calculateRangeLocation[i](range);
                 while(brd[curLoc.X, curLoc.Y] != '#')
                 {
-                    if(brd[curLoc.X, curLoc.Y] == 'X')
+                    if(ninja.Shurikens > 0 && brd[curLoc.X, curLoc.Y] == 'X')
                     {
+                        ninja.Shurikens--;
                         brd[curLoc.X, curLoc.Y] = ' ';
                         return;
                     }

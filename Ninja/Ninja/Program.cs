@@ -1,8 +1,12 @@
-﻿class TestClass
+﻿using Engine;
+using Models;
+
+class TestClass
 {
     static void Main(string[] args)
     {
-        // Display the number of command line arguments.
-        Console.WriteLine(args.Length);
+        Board brd = Board.BoardLoader(@"C:\projects\OPSWAT-Test\Ninja\Input\maps\03_in");
+        MainEngine engine = new MainEngine();
+        engine.Run(brd);
     }
 }
