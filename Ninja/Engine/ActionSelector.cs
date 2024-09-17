@@ -138,28 +138,8 @@ namespace Engine
             if(!ninja.BreakerMode)
                 blockers.Add('X');
 
-            //Save default order
-            Dictionary<Direction, Location> firstLocationOrderChecker = new Dictionary<Direction, Location>(4)
-            {
-                { Direction.South, new Location(ninja.X,ninja.Y+1) },
-                { Direction.East, new Location(ninja.X+1,ninja.Y) },
-                { Direction.North, new Location(ninja.X,ninja.Y-1) },
-                { Direction.West, new Location(ninja.X-1,ninja.Y) }
-            };
-
-            //Set the current ninja direction to check first
-            Dictionary<Direction, Location> locationOrderChecker = new Dictionary<Direction, Location>(4);
-            locationOrderChecker.Add(ninja.Direction, locationOrderChecker[ninja.Direction]);
-
-            //Add the default order of the rest afterwards
-            foreach(var item in firstLocationOrderChecker)
-            {
-                if(item.Key != ninja.Direction)
-                    locationOrderChecker.Add(item.Key, item.Value);
-            }
-
             //Check what nearest cell is open to move to it
-            foreach(var orderChecker in locationOrderChecker)
+            foreach(var orderChecker in ninja.CurrentMoveOrder)
             {
                 bool canGo = true;
                 char nextCellValue = brd[orderChecker.Value.X, orderChecker.Value.Y];
