@@ -13,8 +13,9 @@ namespace Engine
         IEnumerable<Ninja> runningNinjas;
         IEnumerable<Bomb> countdownBombs;
         Board brd;
+        bool isDuringFight = false;
 
-        
+
 
         private void ExtractDynamicItems()
         {
@@ -37,6 +38,8 @@ namespace Engine
         private void ExplodeBomb(Bomb bomb, Board brd)
         {
             bomb.IsAlive = false;
+
+            File.AppendAllText("Log.txt", $"Bomb at x:{bomb.X} y:{bomb.Y} exploded");
 
             List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(bomb);
 
@@ -67,7 +70,7 @@ namespace Engine
                 if(bomb.IsActive && bomb.IsAlive)
                     if(bomb.TurnsToBomb == 0)
                     {
-                        ExplodeBomb(bomb,brd);
+                        ExplodeBomb(bomb, brd);
                     }
                     else
                     {
@@ -79,7 +82,51 @@ namespace Engine
 
         private void Fight()
         {
+            isDuringFight = false;
 
+            var multipleNinjasPerCell = (from n in runningNinjas
+                                         where n.IsAlive == true
+                                         group n by new { n.X, n.Y } into grp
+                                         select grp).Where(group => group.Count() > 1);
+
+            if(multipleNinjasPerCell == null)
+                return;
+
+            isDuringFight = true;
+
+            foreach(var fightingNinjaGroup in multipleNinjasPerCell)
+            {
+                string fightningNinjasString = string.Empty;
+                fightingNinjaGroup.Select(ninja => fightningNinjasString += $"{ninja.Name}, ");
+                File.AppendAllText("Log.txt", $"Battle between {fightningNinjasString} at x:{fightingNinjaGroup.First().X} y:{fightingNinjaGroup.First().Y}");
+
+                int ninjaCount = fightingNinjaGroup.Count();
+                bool groupHasBreakerMode = fightingNinjaGroup.Where(ninja => ninja.BreakerMode == true).Count() > 0;
+
+                //If breaker mode ninja exist in fight
+                if(groupHasBreakerMode)
+                {
+                    //Kill all non breaker mode ninjas
+                    fightingNinjaGroup.Where(ninja => ninja.BreakerMode == false).Select(ninja => ninja.IsAlive = false);
+                }
+
+                //Kill the shurikenlessninjas
+                fightingNinjaGroup.Where(ninja => ninja.Shurikens == 0)
+                    .Select(ninja => ninja.IsAlive = false);
+
+                //Remove 1 shuriken for all ninjas
+                fightingNinjaGroup.Where(ninja => ninja.Shurikens > 0)
+                    .Select(ninja => ninja.Shurikens--);
+            }
+
+            multipleNinjasPerCell = (from n in runningNinjas
+                                     where n.IsAlive == true
+                                     group n by new { n.X, n.Y } into grp
+                                     select grp).Where(group => group.Count() > 1);
+
+            //Count how many groups that has more then 1 ninja per cell are there, and we are not in battle of there are none.
+            if(multipleNinjasPerCell.Count() == 0)
+                isDuringFight = false;
         }
 
 
@@ -92,19 +139,24 @@ namespace Engine
             while(!finished)
             {
                 RunCountdownBombs();
-                foreach(Ninja ninja in runningNinjas)
+
+                if(!isDuringFight)
                 {
-                    if(ninja.IsAlive)
+                    foreach(Ninja ninja in runningNinjas)
                     {
-                        ActionSelector action = new ActionSelector(ninja, brd, countdownBombs, runningNinjas);
-                        action.SelectAction();
-                        if(action.WasWinningStep)
+                        if(ninja.IsAlive)
                         {
-                            File.AppendAllText("Log.txt", $"Ninja {ninja.Name} Won the Game !{Environment.NewLine}");
-                            return ninja;
+                            ActionSelector action = new ActionSelector(ninja, brd, countdownBombs, runningNinjas);
+                            action.SelectAction();
+                            if(action.WasWinningStep)
+                            {
+                                File.AppendAllText("Log.txt", $"Ninja {ninja.Name} Won the Game !{Environment.NewLine}");
+                                return ninja;
+                            }
                         }
                     }
                 }
+
                 Fight();
             }
 

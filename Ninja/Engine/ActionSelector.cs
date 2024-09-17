@@ -16,6 +16,17 @@ namespace Engine
 
         List<(string name, Func<bool> condition, Action action)> CellActionList;
 
+        public ActionSelector(Ninja actingNinja, Board board, IEnumerable<Bomb> bmb, IEnumerable<Ninja> ninjas)
+        {
+            ninja = actingNinja;
+            brd = board;
+            bombs = bmb;
+            allNinjas = ninjas;
+            CellActionList = LoadActionList();
+
+        }
+
+
         private List<(string name, Func<bool> condition, Action action)> LoadActionList()
         {
 
@@ -42,14 +53,9 @@ namespace Engine
                         () => brd[ninja.X, ninja.Y] == '@',
                         () => DefaultMoveAction(ninja,brd)
                 ),
-                (       "Fight",
-                        //Check if there are 2 ninjas in same position that matches our current ninja position, since our current ninja is also in the list
-                        () => allNinjas.Where(otherNinja => otherNinja.X == ninja.X && otherNinja.Y == ninja.Y).Count() > 1,
-                        () => Fight()
-                ),
-                (       "ThrowShurikans",
-                        () => CanThrowShurikan(ninja, brd),
-                        () => ThrowShurikan(ninja,brd)
+                (       "ThrowShurikens",
+                        () => CanThrowShuriken(ninja, brd),
+                        () => ThrowShuriken(ninja,brd)
                 ),
                 (       "Empty",
                         () => brd[ninja.X, ninja.Y] == ' ',
@@ -71,7 +77,7 @@ namespace Engine
                         () => brd[ninja.X, ninja.Y] == 'W',
                         () => ninja.Direction = Direction.West
                 ),
-                (       "CollectShurikan",
+                (       "CollectShuriken",
                         () => brd[ninja.X, ninja.Y] == '*',
                         () =>
                         {
@@ -127,19 +133,6 @@ namespace Engine
             };
         }
 
-
-
-        public ActionSelector(Ninja actingNinja, Board board, IEnumerable<Bomb> bmb, IEnumerable<Ninja> ninjas)
-        {
-            ninja = actingNinja;
-            brd = board;
-            bombs = bmb;
-            allNinjas = ninjas;
-            CellActionList = LoadActionList();
-
-        }
-
-
         public void SelectAction()
         {
             int actionNumber = 0;
@@ -163,7 +156,7 @@ namespace Engine
         private void LogLine((string name, Func<bool> condition, Action action) cellActionOption)
         {
             string logLineString = ignoreLogDirection ? $"{cellActionOption.name}" : $"{ninja.Direction}({cellActionOption.name})";
-            logLineString = $"{logLineString}{Environment.NewLine}";
+            logLineString = $"Ninja:{ninja.Name}, {logLineString}{Environment.NewLine}";
             File.AppendAllText("Log.txt", logLineString);
         }
 
@@ -179,7 +172,7 @@ namespace Engine
             foreach(var orderChecker in ninja.CurrentMoveOrder)
             {
                 bool canGo = true;
-                char nextCellValue = brd[orderChecker.Value.X, orderChecker.Value.Y];
+                char nextCellValue = brd[orderChecker.X, orderChecker.Y];
 
                 foreach(var blocker in blockers)
                 {
@@ -189,7 +182,7 @@ namespace Engine
 
                 if(canGo)
                 {
-                    ninja.Direction = orderChecker.Key;
+                    ninja.Direction = orderChecker.dircection;
                     break;
                 }
             }
@@ -200,7 +193,7 @@ namespace Engine
 
 
 
-        private bool CanThrowShurikan(Ninja ninja, Board brd)
+        private bool CanThrowShuriken(Ninja ninja, Board brd)
         {
             List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
 
@@ -225,7 +218,7 @@ namespace Engine
 
 
 
-        private void ThrowShurikan(Ninja ninja, Board brd)
+        private void ThrowShuriken(Ninja ninja, Board brd)
         {
             ignoreLogDirection = true;
 
@@ -264,11 +257,6 @@ namespace Engine
                     curLoc = calculateRangeLocation[i](range);
                 }
             }
-        }
-
-        private void Fight()
-        {
-
         }
     }
 }
