@@ -29,6 +29,7 @@ class TestClass
         Console.Clear();
         Console.WriteLine(brd.Name);
         brd.PrintBoard();
+        Console.WriteLine("Press enter for next step");
         Console.ReadLine();
     }
 }
