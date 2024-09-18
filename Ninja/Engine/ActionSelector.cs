@@ -3,9 +3,9 @@ using Models.CellDynamicItems;
 
 namespace Engine
 {
-    public class ActionSelector
+    internal class ActionSelector
     {
-        public bool WasWinningStep { get; private set; } = false;
+        internal bool WasWinningStep { get; private set; } = false;
 
         Ninja ninja;
         Board brd;
@@ -112,7 +112,18 @@ namespace Engine
                             DefaultMoveAction(ninja,brd);
                         }
                 ),
-    
+                (       "HolyGrail",
+                        () => brd[ninja.X, ninja.Y] == '$',
+                        () =>
+                        {
+                            if(ninja.BreakerMode)
+                            {
+                                WasWinningStep = true;
+                                ignoreLogDirection = true;
+                                stepAction = false;
+                            }
+                        }
+                ),
                 //Portal Items
                 (       "Portalling",
                         () =>
@@ -226,7 +237,7 @@ namespace Engine
         {
             if(ninja.Shurikens == 0)
                 return false;
-            
+
             List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
 
             for(int i = 0; i < calculateRangeLocation.Count; i++)
@@ -251,7 +262,7 @@ namespace Engine
             stepAction = false;
             ignoreLogDirection = true;
 
-            List<Func<int, (int X, int Y)>>  calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
+            List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(ninja);
 
             for(int i = 0; i < calculateRangeLocation.Count; i++)
             {
@@ -279,7 +290,7 @@ namespace Engine
                     if(ninja.Shurikens > 0 && brd[curLoc.X, curLoc.Y] == 'X')
                     {
                         ninja.Shurikens--;
-                        brd[curLoc.X, curLoc.Y] = ' ';
+                        brd[curLoc.X, curLoc.Y] = '*';
                         return;
                     }
 
