@@ -1,5 +1,6 @@
 ﻿using Models;
 using Models.CellDynamicItems;
+using System.Globalization;
 
 namespace Engine
 {
@@ -32,7 +33,7 @@ namespace Engine
         {
             bomb.IsAlive = false;
 
-            File.AppendAllText($"Log.{brd.Name}.txt", $"Bomb at x:{bomb.X} y:{bomb.Y} exploded");
+            File.AppendAllText($"Log.{brd.Name}.txt", $"Bomb at x:{bomb.X} y:{bomb.Y} exploded{Environment.NewLine}");
 
             List<Func<int, (int X, int Y)>> calculateRangeLocation = Board.RetrieveRangeLocationCalculation(bomb);
 
@@ -48,7 +49,7 @@ namespace Engine
                     foreach(Ninja ninja in runningNinjas.Where(ninja => ninja.X == curLoc.X && ninja.Y == curLoc.Y))
                     {
                         ninja.IsAlive = false;
-                        File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died by bomb !");
+                        File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died by bomb !{Environment.NewLine}");
                     }
 
                     range++;
@@ -69,7 +70,7 @@ namespace Engine
                     else
                     {
                         bomb.TurnsToBomb--;
-                        brd[bomb.X, bomb.Y] = Convert.ToChar(bomb.TurnsToBomb);
+                        brd[bomb.X, bomb.Y] = bomb.TurnsToBomb.ToString()[0];
                     }
             }
         }
@@ -91,8 +92,10 @@ namespace Engine
             foreach(var fightingNinjaGroup in multipleNinjasPerCell)
             {
                 string fightningNinjasString = string.Empty;
-                fightingNinjaGroup.Select(ninja => fightningNinjasString += $"{ninja.Name}, ");
-                File.AppendAllText($"Log.{brd.Name}.txt", $"Battle between {fightningNinjasString} at x:{fightingNinjaGroup.First().X} y:{fightingNinjaGroup.First().Y}");
+                foreach(Ninja ninja in fightingNinjaGroup)
+                    fightningNinjasString += $"{ninja.Name}, ";
+
+                File.AppendAllText($"Log.{brd.Name}.txt", $"Battle between {fightningNinjasString} at x:{fightingNinjaGroup.First().X} y:{fightingNinjaGroup.First().Y}{Environment.NewLine}");
 
                 int ninjaCount = fightingNinjaGroup.Count();
                 bool groupHasBreakerMode = fightingNinjaGroup.Where(ninja => ninja.BreakerMode == true).Count() > 0;
@@ -101,21 +104,20 @@ namespace Engine
                 if(groupHasBreakerMode)
                 {
                     //Kill all non breaker mode ninjas
-                    fightingNinjaGroup.Where(ninja => ninja.BreakerMode == false).Select(ninja => ninja.IsAlive = false);
+                    foreach(Ninja ninja in fightingNinjaGroup.Where(ninja => ninja.BreakerMode == false))
+                        ninja.IsAlive = false;                        
                 }
 
                 //Kill the shurikenlessninjas
-                fightingNinjaGroup.Where(ninja => ninja.Shurikens == 0)
-                    .Select(ninja => ninja.IsAlive = false);
+                foreach(Ninja ninja in fightingNinjaGroup.Where(ninja => ninja.Shurikens == 0))
+                    ninja.IsAlive = false;
 
                 //Remove 1 shuriken for all ninjas
-                fightingNinjaGroup.Where(ninja => ninja.Shurikens > 0)
-                    .Select(ninja => ninja.Shurikens--);
+                foreach(Ninja ninja in fightingNinjaGroup.Where(ninja => ninja.Shurikens > 0))
+                    ninja.Shurikens--;
 
                 foreach(Ninja ninja in fightingNinjaGroup.Where(ninja => ninja.IsAlive == false))
-                {
-                    File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died in battle");
-                }
+                    File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died in battle{Environment.NewLine}");
             }
 
             multipleNinjasPerCell = (from n in runningNinjas
@@ -143,14 +145,14 @@ namespace Engine
                 }
             }
 
-            foreach(Ninja ninja in runningNinjas)
+            foreach(Ninja ninja in runningNinjas.Where(ninja => ninja.IsAlive))
             {
                 newBoard[ninja.X, ninja.Y] = 'A';
             }
 
-            foreach(Bomb bomb in countdownBombs)
+            foreach(Bomb bomb in countdownBombs.Where(bomb => bomb.IsAlive))
             {
-                newBoard[bomb.X, bomb.Y] = Convert.ToChar(bomb.TurnsToBomb);
+                newBoard[bomb.X, bomb.Y] = bomb.TurnsToBomb.ToString()[0];
             }
             Board newBrd = new Board(newBoard);
             newBrd.Name = brd.Name;
