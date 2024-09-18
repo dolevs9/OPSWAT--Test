@@ -268,7 +268,7 @@ namespace Engine
             {
                 int range = 1;
                 (int X, int Y) curLoc = calculateRangeLocation[i](range);
-                while(brd[curLoc.X, curLoc.Y] != '#')
+                while(brd[curLoc.X, curLoc.Y] != '#' && brd[curLoc.X, curLoc.Y] != 'X')
                 {
                     if(ninja.Shurikens > 0 && brd[curLoc.X, curLoc.Y] == '$')
                     {

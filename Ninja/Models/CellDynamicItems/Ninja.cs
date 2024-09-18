@@ -35,7 +35,6 @@ namespace Models.CellDynamicItems
                     moveOrder.Reverse();
 
                 (Direction direction, int X, int Y) currentDirection = DefaultMoveOrder.First(moveOption => moveOption.direction == Direction);
-                moveOrder.Remove(currentDirection);
                 moveOrder.Insert(0,(Direction, currentDirection.X, currentDirection.Y));
 
                 return moveOrder;
