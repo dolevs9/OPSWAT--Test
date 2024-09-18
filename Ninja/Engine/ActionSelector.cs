@@ -34,19 +34,23 @@ namespace Engine
             return new List<(string name, Func<bool> condition, Action action)>()
             {(
                       "ActivateBombs",
-                      () =>   char.IsDigit(brd[ninja.X, ninja.Y-1]) ||
-                                            char.IsDigit(brd[ninja.X+1, ninja.Y]) ||
-                                            char.IsDigit(brd[ninja.X, ninja.Y+1]) ||
-                                            char.IsDigit(brd[ninja.X-1, ninja.Y]),
+                      () =>     char.IsDigit(brd[ninja.X, ninja.Y-1]) ||
+                                char.IsDigit(brd[ninja.X+1, ninja.Y]) ||
+                                char.IsDigit(brd[ninja.X, ninja.Y+1]) ||
+                                char.IsDigit(brd[ninja.X-1, ninja.Y]),
                       () => {
-                            bombs.Where(bomb =>  bomb.X == ninja.X-1 && bomb.Y == ninja.Y ||
-                                                 bomb.X == ninja.X-1 && bomb.Y == ninja.Y ||
-                                                 bomb.X == ninja.X && bomb.Y == ninja.Y-1 ||
-                                                 bomb.X == ninja.X && bomb.Y == ninja.Y+1)
-                                 .Select(bomb => bomb.IsActive = true);
-                            shouldContinue = true;
-                            ignoreLogDirection = true;
-                            stepAction = false;
+                                var bombsNearNinja = bombs.Where(
+                                                     bomb =>  bomb.X == ninja.X+1 && bomb.Y == ninja.Y ||
+                                                     bomb.X == ninja.X-1 && bomb.Y == ninja.Y ||
+                                                     bomb.X == ninja.X && bomb.Y == ninja.Y-1 ||
+                                                     bomb.X == ninja.X && bomb.Y == ninja.Y+1);
+                                
+                                foreach (Bomb bomb in bombsNearNinja)
+                                  bomb.IsActive = true;
+
+                                shouldContinue = true;
+                                ignoreLogDirection = true;
+                                stepAction = false;
                         }
                 ),
 
