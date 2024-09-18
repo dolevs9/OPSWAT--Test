@@ -4,17 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Models
+namespace Models.CellDynamicItems
 {
-    public class Location
+    public class CellDynamicItem
     {
         public int X { get; set; }
         public int Y { get; set; }
-
-        public Location(int x,int y)
-        {
-            X = x;
-            Y = y;
-        }
     }
 }
