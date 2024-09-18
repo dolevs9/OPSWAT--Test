@@ -130,6 +130,7 @@ namespace Engine
 
         public Ninja Run(Board brd)
         {
+            int step = 0;
             this.brd = brd;
             bool finished = false;
             ExtractDynamicItems();
@@ -159,6 +160,14 @@ namespace Engine
                 }
 
                 Fight();
+
+                step++;
+
+                if(step > 200)
+                {
+                    finished = true;
+                    File.AppendAllText($"Log.{brd.Name}.txt", $"Game Stuck and passed 200 steps, exiting !");
+                }
             }
 
             return null;
