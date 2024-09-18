@@ -200,6 +200,12 @@ namespace Engine
 
                 Fight();
 
+                if(runningNinjas.Where(ninja => ninja.IsAlive).Count() == 0)
+                {
+                    finished = true;
+                    File.AppendAllText($"Log.{brd.Name}.txt", $"All ninjas died, exiting the game !");
+                }
+
                 step++;
 
                 if(step > 200)
