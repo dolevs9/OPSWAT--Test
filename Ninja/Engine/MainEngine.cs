@@ -10,6 +10,8 @@ namespace Engine
         Board brd;
         bool isDuringFight = false;
 
+        public event Action<Board> GameStepWasDone;
+
         private void ExtractDynamicItems()
         {
             ItemCreator creator = new ItemCreator();
@@ -48,8 +50,6 @@ namespace Engine
                         ninja.IsAlive = false;
                         File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died by bomb !");
                     }
-                    
-                        
 
                     range++;
                     curLoc = calculateRangeLocation[i](range);
@@ -112,7 +112,7 @@ namespace Engine
                 fightingNinjaGroup.Where(ninja => ninja.Shurikens > 0)
                     .Select(ninja => ninja.Shurikens--);
 
-                foreach (Ninja ninja in fightingNinjaGroup.Where(ninja => ninja.IsAlive == false))
+                foreach(Ninja ninja in fightingNinjaGroup.Where(ninja => ninja.IsAlive == false))
                 {
                     File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died in battle");
                 }
@@ -127,6 +127,36 @@ namespace Engine
             if(multipleNinjasPerCell.Count() == 0)
                 isDuringFight = false;
         }
+
+        private Board RecreateFullVisualBoard()
+        {
+            char[,] newBoard = new char[brd.GetLength(0), brd.GetLength(1)];
+
+            int height = brd.GetLength(1);
+            int width = brd.GetLength(0);
+
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    newBoard[j, i] = brd[j, i];
+                }
+            }
+
+            foreach(Ninja ninja in runningNinjas)
+            {
+                newBoard[ninja.X, ninja.Y] = 'A';
+            }
+
+            foreach(Bomb bomb in countdownBombs)
+            {
+                newBoard[bomb.X, bomb.Y] = Convert.ToChar(bomb.TurnsToBomb);
+            }
+            Board newBrd = new Board(newBoard);
+            newBrd.Name = brd.Name;
+            return newBrd;
+        }
+
 
         public Ninja Run(Board brd)
         {
@@ -147,6 +177,13 @@ namespace Engine
                         {
                             ActionSelector action = new ActionSelector(ninja, brd, countdownBombs, runningNinjas);
                             bool actionWasDone = action.SelectAction();
+
+                            if(GameStepWasDone != null)
+                            {
+                                Board fullVisualBoard = RecreateFullVisualBoard();
+                                GameStepWasDone.Invoke(fullVisualBoard);
+                            }
+
                             if(action.WasWinningStep)
                             {
                                 File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} Won the Game !{Environment.NewLine}");
