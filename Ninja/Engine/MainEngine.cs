@@ -1,10 +1,5 @@
 ﻿using Models;
 using Models.CellDynamicItems;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Engine
 {
@@ -14,8 +9,6 @@ namespace Engine
         IEnumerable<Bomb> countdownBombs;
         Board brd;
         bool isDuringFight = false;
-
-
 
         private void ExtractDynamicItems()
         {
@@ -32,8 +25,6 @@ namespace Engine
             runningNinjas = cellItems.Where(cellItem => cellItem is Ninja).Select(cellItem => cellItem as Ninja);
             countdownBombs = cellItems.Where(cellItem => cellItem is Bomb).Select(cellItem => cellItem as Bomb);
         }
-
-
 
         private void ExplodeBomb(Bomb bomb, Board brd)
         {
@@ -52,16 +43,19 @@ namespace Engine
                     if(brd[curLoc.X, curLoc.Y] == '0' || brd[curLoc.X, curLoc.Y] == 'X' || brd[curLoc.X, curLoc.Y] == '*')
                         brd[curLoc.X, curLoc.Y] = ' ';
 
-                    //TODO: Validation
-                    runningNinjas.Where(ninja => ninja.X == curLoc.X && ninja.Y == curLoc.Y)
-                        .Select(ninja => ninja.IsAlive = false);
+                    foreach(Ninja ninja in runningNinjas.Where(ninja => ninja.X == curLoc.X && ninja.Y == curLoc.Y))
+                    {
+                        ninja.IsAlive = false;
+                        File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died by bomb !");
+                    }
+                    
+                        
 
                     range++;
                     curLoc = calculateRangeLocation[i](range);
                 }
             }
         }
-
 
         private void RunCountdownBombs()
         {
@@ -117,6 +111,11 @@ namespace Engine
                 //Remove 1 shuriken for all ninjas
                 fightingNinjaGroup.Where(ninja => ninja.Shurikens > 0)
                     .Select(ninja => ninja.Shurikens--);
+
+                foreach (Ninja ninja in fightingNinjaGroup.Where(ninja => ninja.IsAlive == false))
+                {
+                    File.AppendAllText($"Log.{brd.Name}.txt", $"Ninja {ninja.Name} died in battle");
+                }
             }
 
             multipleNinjasPerCell = (from n in runningNinjas
@@ -128,7 +127,6 @@ namespace Engine
             if(multipleNinjasPerCell.Count() == 0)
                 isDuringFight = false;
         }
-
 
         public Ninja Run(Board brd)
         {

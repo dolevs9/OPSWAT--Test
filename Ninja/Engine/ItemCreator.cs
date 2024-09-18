@@ -2,7 +2,7 @@
 
 namespace Engine
 {
-    public class ItemCreator
+    internal class ItemCreator
     {
         private Dictionary<Func<char, bool>, Func<int, int, char, CellDynamicItem>> CellMatcherList = new Dictionary<Func<char, bool>, Func<int, int, char, CellDynamicItem>>()
         {

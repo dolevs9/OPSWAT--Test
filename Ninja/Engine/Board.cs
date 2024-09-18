@@ -1,10 +1,4 @@
 ﻿using Models.CellDynamicItems;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Models
 {
@@ -34,7 +28,6 @@ namespace Models
             board = content;
             
         }
-
 
         internal void ScanItems(Action<int, int, char> actionToDoPerCell)
         {
