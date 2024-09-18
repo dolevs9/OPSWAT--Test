@@ -4,7 +4,7 @@ namespace Models
 {
     public class Board
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         private char[,] board { get; set; }
 
@@ -71,6 +71,21 @@ namespace Models
                 (int range)=> (cellItem.X, cellItem.Y - range),
                 (int range)=> (cellItem.X-range, cellItem.Y)
             };
+        }
+
+        public void PrintBoard()
+        {
+            int height = board.GetLength(0);
+            int width = board.GetLength(1);
+
+            for(int i = 0; i < height; i++)
+            {
+                for(int j = 0; j < width; j++)
+                {
+                    Console.Write(board[j, i]);
+                }
+                Console.WriteLine();
+            }
         }
     }
 }
